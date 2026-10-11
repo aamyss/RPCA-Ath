@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="ชมรมกรีฑา">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body data-mode="admin">
 <div class="nav"><div class="in">
@@ -27,12 +27,13 @@
 
   <div id="login" class="panel">
     <h2 style="margin:0 0 4px;font-size:22px">เข้าสู่ระบบ</h2>
-    <p class="s" style="margin:0 0 16px">ใส่ชื่อของคุณและรหัสผู้ดูแล</p>
+    <p class="s" style="margin:0 0 16px">ชื่อของคุณ: พิมพ์อะไรก็ได้ ใช้บันทึกว่าใครเป็นคนแก้ไขข้อมูล (ดูได้ในแท็บ EditLog)</p>
     <div class="grid">
-      <div><label for="caller">ชื่อของคุณ</label><input class="field" id="caller" placeholder="เช่น นตท.สมชาย ใจดี" autocomplete="off"></div>
+      <div><label for="caller">ชื่อของคุณ</label><input class="field" id="caller" placeholder="เช่น Donnie" autocomplete="off"></div>
       <div><label for="code">รหัสผู้ดูแล</label><input class="field" id="code" type="password" autocomplete="off"></div>
     </div>
     <div class="row" style="margin-top:14px"><button class="btn red" id="loginBtn" type="button">เข้าสู่ระบบ</button></div>
+    <div id="loginMsg" class="msg" hidden style="margin-top:14px"></div>
   </div>
 
   <div id="app" hidden>
@@ -77,6 +78,6 @@
   <div class="two"><div><label for="e_phone">เบอร์โทร (หลายเบอร์คั่นด้วย , )</label><input class="field" id="e_phone" type="tel"></div><div><label for="e_dist">ระยะ</label><input class="field" id="e_dist"></div></div>
   <div class="row"><button class="btn red" type="submit">บันทึก</button><button class="btn text" type="button" id="dlgCancel">ยกเลิก</button></div>
 </form></dialog>
-<script src="config.js?v=4"></script>
-<script src="app.js?v=4"></script>
+<script src="config.js?v=5"></script>
+<script src="app.js?v=5"></script>
 </body></html>

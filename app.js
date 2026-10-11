@@ -25,7 +25,7 @@
     return j.data;
   }
 
-  const msg = (t, kind) => { const m = $('#msg'); m.hidden = !t; m.className = 'msg ' + (kind || 'err'); m.textContent = t || ''; };
+  const msg = (t, kind) => { const m = ($('#app') && $('#app').hidden && $('#loginMsg')) || $('#msg'); m.hidden = !t; m.className = 'msg ' + (kind || 'err'); m.textContent = t || ''; };
   const code = () => $('#code') ? $('#code').value : '';
   const caller = () => { const c = ($('#caller') && $('#caller').value.trim()) || ''; if (!c) msg('กรุณาใส่ชื่อของคุณก่อน'); return c; };
   const updText = (a) => (a.updated ? 'อัปเดตล่าสุด ' + a.updated : 'ยังไม่เคยอัปเดต');
@@ -34,6 +34,8 @@
   async function login(silent) {
     msg('');
     if (!caller()) return;
+    if (!code()) { msg('กรุณาใส่รหัสผู้ดูแล'); return; }
+    const btn = $('#loginBtn'); btn.disabled = true; btn.textContent = 'กำลังตรวจสอบ…';
     try {
       const s = await api('staffStats', code());
       store.set('adminCode', code()); store.set('adminName', $('#caller').value.trim());
@@ -41,7 +43,7 @@
     } catch (e) {
       $('#login').hidden = false; $('#app').hidden = true;
       if (!silent) msg(e.message); else store.set('adminCode', '');
-    }
+    } finally { btn.disabled = false; btn.textContent = 'เข้าสู่ระบบ'; }
   }
   let linked = false;
   async function deepLink() {
@@ -76,7 +78,7 @@
       page = Math.min(page, Math.max(1, Math.ceil(ALL.length / PER)));
       render(r.total);
       loadStats();
-    } catch (e) { $('#sum').innerHTML = ''; msg(e.message); }
+    } catch (e) { $('#sum').innerHTML = ''; $('#results').hidden = true; msg(e.message); }
   }
 
   /* ---------- แสดงผล ---------- */
