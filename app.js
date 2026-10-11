@@ -10,6 +10,9 @@
   const PHONE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg>';
 
   let ALL = [], page = 1, byId = {}, editing = null;
+  // หน้าแรก: 'gens' = สารบัญรุ่น · 'all' = โชว์ทั้งหมดตอนเปิดหน้า · '' = ต้องค้นหาก่อน
+  const BROWSE = ADMIN ? '' : (document.body.dataset.browse || '');
+  let LISTALL = false, GENS = null;
 
   /* ---------- เรียก API (Apps Script) ---------- */
   async function api(fn, ...args) {
@@ -69,7 +72,8 @@
     msg('');
     const c = criteria();
     if (!Object.values(c).some(Boolean)) { msg('พิมพ์ชื่อ หรือกรอกตัวกรองอย่างน้อยหนึ่งช่อง'); return; }
-    $('#results').hidden = false;
+    $('#results').hidden = false; LISTALL = false;
+    if ($('#browse')) $('#browse').hidden = true;
     $('#sum').innerHTML = '<div class="empty">กำลังค้นหา…</div>'; $('#tbody').innerHTML = ''; $('#cards').innerHTML = ''; $('#pager').innerHTML = '';
     try {
       const r = ADMIN ? await api('staffSearch', c, code()) : await api('memberSearch', c);
@@ -93,7 +97,7 @@
   function render(total) {
     const n = ALL.length, from = n ? (page - 1) * PER + 1 : 0, to = Math.min(page * PER, n);
     if (!n) { $('#sum').innerHTML = '<div class="empty">ไม่พบข้อมูล ลองเปลี่ยนคำค้นหา</div>'; $('#tbody').innerHTML = ''; $('#cards').innerHTML = ''; $('#pager').innerHTML = ''; return; }
-    $('#sum').innerHTML = `<b>พบข้อมูล ${total} รายการ</b><div>แสดงรายการที่ ${from}-${to} จาก ${n} รายการ${total > n ? ' (กรองให้แคบลงเพื่อดูส่วนที่เหลือ)' : ''}</div>`;
+    $('#sum').innerHTML = (BROWSE === 'gens' ? '<button class="btn text back" type="button" id="backGens">← กลับไปสารบัญรุ่น</button>' : '') + `<b>${LISTALL ? `รายชื่อทั้งหมด ${total} คน` : genOnly() ? `รุ่น ${esc(genOnly())} · ${total} คน` : `พบข้อมูล ${total} รายการ`}</b><div>แสดงรายการที่ ${from}-${to} จาก ${n} รายการ${total > n ? ' (กรองให้แคบลงเพื่อดูส่วนที่เหลือ)' : ''}</div>`;
     const rows = ALL.slice(from - 1, to);
     $('#tbody').innerHTML = rows.map((a, i) => `<tr>
       <td class="c">${from + i}</td>
@@ -178,5 +182,34 @@
   $('#clear').addEventListener('click', () => {
     $('#q').value = ''; FIELDS.forEach((k) => { $('#f_' + k).value = ''; }); if (ADMIN) $('#f_fresh').value = '';
     $('#results').hidden = true; msg('');
+    startBrowse();
   });
+  /* ---------- หน้าแรก: สารบัญรุ่น / รายชื่อทั้งหมด ---------- */
+  async function showGens() {
+    const box = $('#browse'); if (!box) return;
+    $('#results').hidden = true; box.hidden = false;
+    if (!GENS) {
+      box.innerHTML = '<div class="empty">กำลังโหลดสารบัญรุ่น…</div>';
+      try { GENS = await api('genIndex'); } catch (e) { box.innerHTML = ''; msg(e.message); return; }
+    }
+    const total = GENS.reduce((n, g) => n + g.count, 0);
+    box.innerHTML = `<div class="ghead"><b>สารบัญรุ่น</b><span>${GENS.length} รุ่น · ${total} คน · แตะรุ่นเพื่อดูรายชื่อ</span></div>
+      <div class="gens">${GENS.map((g) => `<button type="button" class="gchip" data-gen="${esc(g.gen)}"><b>รุ่น ${esc(g.gen)}</b><span>${g.count} คน</span></button>`).join('')}</div>`;
+  }
+  async function showAll() {
+    msg(''); $('#results').hidden = false; if ($('#browse')) $('#browse').hidden = true;
+    $('#sum').innerHTML = '<div class="empty">กำลังโหลดรายชื่อทั้งหมด…</div>'; $('#tbody').innerHTML = ''; $('#cards').innerHTML = ''; $('#pager').innerHTML = '';
+    try {
+      const r = await api('memberSearch', { all: true });
+      ALL = r.items; LISTALL = true; page = 1; render(r.total);
+    } catch (e) { $('#sum').innerHTML = ''; msg(e.message); }
+  }
+  const genOnly = () => { const c = criteria(); return c.gen && !c.q && !c.first && !c.last && !c.nick && !c.dist ? c.gen : ''; };
+  function startBrowse() { if (BROWSE === 'gens') showGens(); else if (BROWSE === 'all') showAll(); }
+  document.addEventListener('click', (e) => {
+    const g = e.target.closest('.gchip');
+    if (g) { FIELDS.forEach((k) => { $('#f_' + k).value = ''; }); $('#q').value = ''; $('#f_gen').value = g.dataset.gen; search(false); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    if (e.target.closest('#backGens')) { $('#f_gen').value = ''; showGens(); }
+  });
+  startBrowse();
 })();

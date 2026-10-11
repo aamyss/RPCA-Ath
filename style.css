@@ -113,3 +113,17 @@ dialog h2 { margin: 0; font-size: 20px; }
 @media (max-width: 480px) { .two { grid-template-columns: 1fr; } }
 
 @media (max-width: 420px) { .nav .in { gap: 12px; } .nav a.l { font-size: 15px; } .brand img { width: 40px; height: 40px; } .brand b { font-size: 15px; } }
+
+/* สารบัญรุ่น */
+#browse { margin-top: 22px; }
+.ghead { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 0 2px 12px; }
+.ghead b { font-size: 20px; }
+.ghead span { color: var(--muted); font-size: 15px; }
+.gens { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+.gchip { font: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 8px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); transition: border-color .15s, transform .15s; }
+.gchip b { font-size: 19px; }
+.gchip span { font-size: 14px; color: var(--muted); }
+.gchip:hover { border-color: var(--red-bright); transform: translateY(-1px); }
+.gchip:focus-visible { outline: 2px solid var(--red-bright); outline-offset: 2px; }
+.btn.back { display: block; margin: 0 auto 8px; padding: 4px 6px; }
+@media (max-width: 480px) { .gens { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } .gchip { padding: 11px 4px; } .gchip b { font-size: 16px; } }
