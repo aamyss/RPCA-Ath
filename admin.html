@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ผู้ดูแล · ทำเนียบชมรมกรีฑา</title>
+<title>Admin · ทำเนียบชมรมกรีฑา</title>
 <meta name="theme-color" content="#141111">
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" type="image/png" href="favicon.png">
@@ -17,13 +17,13 @@
 </head>
 <body data-mode="admin">
 <div class="nav"><div class="in">
-    <a class="brand" href="index.html"><img src="logo.png" alt="โลโก้ชมรมกรีฑา"><span><b>ชมรมกรีฑา รร.นรต.</b><small>ทำเนียบรุ่นพี่ · since 1982</small></span></a>
-    <a class="l" href="index.html">ค้นหารุ่นพี่</a>
-    <a class="l on" href="admin.html">ผู้ดูแล</a>
+    <a class="brand" href="index.html"><img src="logo.png" alt="โลโก้ชมรมกรีฑา"><span><b>ชมรมกรีฑา รร.นรต.</b><small>ทำเนียบชมรมกรีฑา · since 1982</small></span></a>
+    <a class="l" href="index.html">สืบค้นทำเนียบ</a>
+    <a class="l on" href="admin.html">Admin</a>
   </div></div><div class="stripe"></div>
 <main>
   <h1 class="title"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>สำหรับผู้ดูแล</h1>
-  <p class="sub">โทรสอบถาม อัปเดต และแก้ไขข้อมูลรุ่นพี่ในชมรม</p>
+  <p class="sub">โทรสอบถาม อัปเดต และแก้ไขข้อมูลทำเนียบชมรมกรีฑา</p>
 
   <div id="login" class="panel">
     <h2 style="margin:0 0 4px;font-size:22px">เข้าสู่ระบบ</h2>
@@ -48,11 +48,11 @@
   </form>
   <div id="filters" class="panel" hidden>
     <div class="grid">
-      <div><label for="f_gen">รุ่น</label><input class="field" id="f_gen" inputmode="numeric" placeholder="เช่น 38"></div>
-      <div><label for="f_first">ชื่อจริง</label><input class="field" id="f_first" placeholder="เช่น ธีทัต"></div>
-      <div><label for="f_last">นามสกุล</label><input class="field" id="f_last" placeholder="เช่น อิ่มทั่ว"></div>
-      <div><label for="f_nick">ชื่อเล่น หรือ ฉายา</label><input class="field" id="f_nick" placeholder="เช่น ม้า"></div>
-      <div><label for="f_dist">ระยะ</label><input class="field" id="f_dist" placeholder="เช่น 800"></div>
+      <div><label for="f_gen">รุ่น</label><input class="field" id="f_gen" inputmode="numeric" placeholder="เช่น 79"></div>
+      <div><label for="f_first">ชื่อจริง</label><input class="field" id="f_first" placeholder="เช่น ธนวัฒน์/ธนเดช"></div>
+      <div><label for="f_last">นามสกุล</label><input class="field" id="f_last" placeholder="เช่น โชติรัตน์อมรกุล/สงวนสัตย์"></div>
+      <div><label for="f_nick">ชื่อเล่น หรือ ฉายา</label><input class="field" id="f_nick" placeholder="เช่น หาว/ดอนนี่"></div>
+      <div><label for="f_dist">ระยะ</label><input class="field" id="f_dist" placeholder="เช่น ขว้างจักร/100"></div>
       <div><label for="f_fresh">สถานะข้อมูล</label><select class="field" id="f_fresh"><option value="">ทุกคน</option><option value="stale">ยังไม่อัปเดตปีนี้</option><option value="fresh">อัปเดตปีนี้แล้ว</option></select></div>
     </div>
     <div class="row" style="margin-top:14px"><button class="btn red" type="submit" form="searchForm">ค้นหา</button><button class="btn text" type="button" id="clear">ล้างทั้งหมด</button></div>

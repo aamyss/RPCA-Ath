@@ -19,7 +19,9 @@ button, input, select, textarea { font: inherit; }
 .nav .in { max-width: 1120px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 16px; }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; margin-right: auto; min-width: 0; }
 .brand img { width: 46px; height: 46px; object-fit: contain; background: #fff; border-radius: 12px; padding: 3px; flex: none; }
-.brand b { font-size: 20px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand span { min-width: 0; }
+#filters .grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+.brand b { display: block; font-size: 20px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .brand small { display: block; font-size: 14px; font-weight: 400; color: #cdb3b8; line-height: 1.2; }
 .nav a.l { color: #e9e3e3; text-decoration: none; padding: 8px 2px; font-weight: 500; border-bottom: 3px solid transparent; white-space: nowrap; }
 .nav a.l:hover { color: #fff; }
@@ -106,3 +108,5 @@ dialog form { padding: 20px; display: grid; gap: 12px; }
 dialog h2 { margin: 0; font-size: 20px; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 480px) { .two { grid-template-columns: 1fr; } }
+
+@media (max-width: 420px) { .nav .in { gap: 12px; } .nav a.l { font-size: 15px; } .brand img { width: 40px; height: 40px; } .brand b { font-size: 15px; } }
