@@ -60,6 +60,25 @@
   }
   const loadStats = () => ADMIN && api('staffStats', code()).then(showStats).catch(() => {});
 
+  /* ---------- เรียงผล: รุ่น → ระยะ (ลู่สั้น→ยาว, ผลัด, ลาน, ไม่ระบุไว้ท้าย) → ชื่อ ---------- */
+  const FIELD_EV = ['กระโดดสูง', 'กระโดดไกล', 'เขย่ง', 'ค้ำถ่อ', 'ทุ่มน้ำหนัก', 'ขว้างจักร', 'พุ่งแหลน', 'ขว้างค้อน', 'ทศกรีฑา', 'สัตตกรีฑา'];
+  function distKey(d) {
+    const s = String(d || '').trim().toLowerCase();
+    if (!s || s === '-') return [9, 0];
+    if (/ผลัด|\d\s*[x×]\s*\d/.test(s)) { const m = s.match(/[x×]\s*(\d[\d,]*)/); return [2, m ? Number(m[1].replace(/,/g, '')) : 0]; }
+    if (/มาราธอน|marathon/.test(s)) return [1, /ฮาล์ฟ|half/.test(s) ? 21097 : 42195];
+    const n = s.match(/\d[\d,]*/);
+    if (n) return [1, Number(n[0].replace(/,/g, '')) + (/ข้ามรั้ว|วิบาก|hurdle/.test(s) ? 0.5 : 0)];
+    const f = FIELD_EV.findIndex((x) => s.includes(x));
+    return f >= 0 ? [3, f] : [4, 0];
+  }
+  function byOrder(a, b) {
+    const g = (Number(a.gen) || 0) - (Number(b.gen) || 0); if (g) return g;
+    const ka = distKey(a.dist), kb = distKey(b.dist);
+    if (ka[0] !== kb[0]) return ka[0] - kb[0];
+    if (ka[1] !== kb[1]) return ka[1] - kb[1];
+    return String(a.dist || '').localeCompare(String(b.dist || ''), 'th') || String(a.name || '').localeCompare(String(b.name || ''), 'th');
+  }
   /* ---------- ค้นหา ---------- */
   const FIELDS = ['gen', 'first', 'last', 'nick', 'dist'];
   function criteria() {
@@ -77,7 +96,7 @@
     $('#sum').innerHTML = '<div class="empty">กำลังค้นหา…</div>'; $('#tbody').innerHTML = ''; $('#cards').innerHTML = ''; $('#pager').innerHTML = '';
     try {
       const r = ADMIN ? await api('staffSearch', c, code()) : await api('memberSearch', c);
-      ALL = r.items; byId = {}; ALL.forEach((a) => { if (a.id) byId[a.id] = a; });
+      ALL = r.items.slice().sort(byOrder); byId = {}; ALL.forEach((a) => { if (a.id) byId[a.id] = a; });
       if (!keepPage) page = 1;
       page = Math.min(page, Math.max(1, Math.ceil(ALL.length / PER)));
       render(r.total);
