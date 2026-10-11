@@ -13,17 +13,26 @@ GitHub Pages (index.html, admin.html)  ──fetch──▶  Apps Script /exec (
 
 ## ขั้นตอน
 1. **Apps Script** (ในสำเนาชีต → Extensions → Apps Script)
-   - วาง `Code.gs` ใหม่ทับของเดิม (ลบไฟล์ `Index` ออกได้ ไม่ใช้แล้ว) → รัน `setup` (ถ้ายังไม่เคย)
-   - Project Settings → Script properties: `ACCESS_CODE` (รหัสผู้ดูแลหน้าเว็บ), `LINE_TOKEN`, `WEB_BASE` (ไม่บังคับ เช่น `https://ชื่อ.github.io/repo` ทำให้ปุ่ม "เปิดหน้าเว็บ" ใน LINE ใช้ได้)
-   - Deploy → New deployment → Web app → Execute as **Me** → Who has access **Anyone** → Deploy
-   - คัดลอก URL ที่ลงท้าย `/exec` (ใช้เป็น Webhook ของ LINE ด้วย) · แก้โค้ดภายหลังต้อง Deploy → Manage deployments → New version
-2. **ใส่ URL ในเว็บ** แก้ `config.js` ให้ `window.API_URL` เป็น URL `/exec` ข้างบน
-3. **ขึ้น GitHub**
+   - วาง `Code.gs` ใหม่ทับของเดิม (ลบไฟล์ `Index` ออกได้ ไม่ใช้แล้ว) → รัน `setup` 1 ครั้ง (รันซ้ำได้ ไม่ลบข้อมูล)
+   - Project Settings → Script properties:
+     - `ACCESS_CODE` รหัสผู้ดูแลหน้าเว็บ (ตั้งให้เดายาก)
+     - `LINE_TOKEN` Channel access token (long-lived) จาก LINE Developers
+     - `LINE_HOOK_KEY` คำลับยาว ๆ อะไรก็ได้ เช่น `k7Qx2mPz9` (แนะนำมาก เพราะ URL `/exec` จะเปิดเผยใน config.js)
+     - `JOIN_CODE` (ไม่บังคับ) ใครพิมพ์ `สมัคร <JOIN_CODE>` ในบอทจะใช้งานได้ทันที ถ้าไม่ตั้ง ต้องเปลี่ยน pending → approved ในแท็บ Users เอง
+     - `WEB_BASE` (ไม่บังคับ) ลิงก์ GitHub Pages เช่น `https://ชื่อ.github.io/rpca-athletes` → ใน LINE จะมีปุ่ม "หน้าเว็บผู้ดูแล"
+   - Deploy → New deployment → Web app → Execute as **Me** → Who has access **Anyone** → Deploy → คัดลอก URL ที่ลงท้าย `/exec`
+   - แก้โค้ดภายหลัง: Deploy → Manage deployments → ✏️ → Version: **New version** (URL เดิม)
+2. **LINE** (LINE Developers → Messaging API)
+   - Webhook URL = `<URL /exec>?k=<LINE_HOOK_KEY>` → เปิด **Use webhook**
+   - LINE Official Account Manager → ปิด Auto-reply และ Greeting message
+   - ปุ่ม Verify อาจขึ้น error 302 ซึ่งเป็นปกติของ Apps Script ให้ทดสอบโดยส่งข้อความหาบอทจริง
+3. **ใส่ URL ในเว็บ** แก้ `config.js` ให้ `window.API_URL` เป็น URL `/exec` (ไม่ต้องใส่ `?k=`)
+4. **ขึ้น GitHub**
    - สร้าง repo ใหม่ (เช่น `rpca-athletes`) → อัปโหลดไฟล์ทั้งหมดในโฟลเดอร์นี้ (ไฟล์ตรงชั้นนอก ไม่ซ้อนโฟลเดอร์)
    - Settings → Pages → Source: *Deploy from a branch* → Branch `main` / `(root)` → Save
    - รอ 1-2 นาที จะได้ลิงก์ `https://<ชื่อผู้ใช้>.github.io/rpca-athletes/`
-4. **ติดไอคอนบน iPhone/iPad** เปิดลิงก์ใน Safari → ปุ่มแชร์ → "เพิ่มไปยังหน้าจอโฮม" ได้ไอคอนโลโก้ชมรมเต็มรูป
-5. **ทดสอบ** เปิด `index.html` พิมพ์ชื่อค้นหา · เปิด `admin.html` ใส่ชื่อ + รหัสผู้ดูแล
+5. **ติดไอคอนบน iPhone/iPad** เปิดลิงก์ใน Safari → ปุ่มแชร์ → "เพิ่มไปยังหน้าจอโฮม" ได้ไอคอนโลโก้ชมรมเต็มรูป
+6. **ทดสอบ** เปิด `index.html` พิมพ์ชื่อค้นหา · เปิด `admin.html` ใส่ชื่อ + รหัสผู้ดูแล · ทักบอท LINE แล้วอนุมัติตัวเองในแท็บ Users (approved)
 
 ## ความปลอดภัย (สำคัญ)
 - repo นี้มีแต่หน้าเว็บ ไม่มีข้อมูลรายชื่อ จึงตั้งเป็น public ได้ **ห้ามใส่ข้อมูลจากชีตลง repo**
@@ -33,4 +42,6 @@ GitHub Pages (index.html, admin.html)  ──fetch──▶  Apps Script /exec (
 
 
 ## อัปเดตผ่าน LINE
-สมาชิก LINE ที่สถานะ approved ทุกคนกด "อัปเดตข้อมูล" ได้ (ตำแหน่ง/เบอร์/ระยะ/ชื่อเล่น) ต้องกดยืนยันก่อนบันทึก และทุกครั้งบันทึกใน EditLog พร้อมชื่อผู้แก้ ถ้าไม่ไว้ใจใคร ให้เปลี่ยนสถานะในแท็บ Users
+- ผู้ใช้ที่สถานะ `approved` ในแท็บ Users ทุกคนกด "อัปเดตข้อมูล" บนการ์ดได้: ข้อมูลถูกต้อง / แก้ตำแหน่ง / แก้เบอร์โทร / แก้ระยะ / แก้ชื่อเล่น
+- พิมพ์ค่าใหม่ → บอทถามยืนยันก่อนบันทึกทุกครั้ง (ค้างไว้เกิน 10 นาทีจะยกเลิกเอง) · ตำแหน่งเดิมเก็บในแท็บ PositionHistory
+- ทุกการแก้บันทึกในแท็บ EditLog พร้อมชื่อ LINE ของผู้แก้ ถ้ามีคนแก้มั่ว เปลี่ยนสถานะเขาเป็น `blocked` ในแท็บ Users

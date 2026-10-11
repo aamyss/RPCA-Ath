@@ -14,8 +14,13 @@
   /* ---------- เรียก API (Apps Script) ---------- */
   async function api(fn, ...args) {
     if (!window.API_URL || /PASTE_/.test(window.API_URL)) throw new Error('ยังไม่ได้ตั้งค่า API_URL ในไฟล์ config.js');
-    const res = await fetch(window.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn, args }) });
-    const j = await res.json();
+    let j;
+    try {
+      const res = await fetch(window.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn, args }) });
+      j = await res.json();
+    } catch (e) {
+      throw new Error('เชื่อมต่อระบบไม่ได้ ตรวจอินเทอร์เน็ต หรือ URL ใน config.js / การ Deploy (Who has access: Anyone)');
+    }
     if (!j.ok) throw new Error(j.error || 'เกิดข้อผิดพลาด');
     return j.data;
   }
@@ -81,7 +86,7 @@
   }
   const histHtml = (a) => (a.history && a.history.length ? `<div class="hist">ก่อนหน้า: ${a.history.map((h) => esc(h.pos) + (h.date ? ' (' + esc(h.date) + ')' : '')).join(' → ')}</div>` : '');
   const nameHtml = (a) => `<div class="n"><span class="rk">${esc(a.rank)}</span>${esc(a.name)}${a.tag ? `<span class="tag">${esc(a.tag)}</span>` : ''}</div>${a.nick ? `<div class="s">“${esc(a.nick)}”</div>` : ''}`;
-  const actions = (a) => ADMIN ? `<div class="upd" id="u_${a.id}">${esc(updText(a))}</div><div class="acts"><button class="btn ghost" data-act="ok" data-id="${a.id}">ข้อมูลถูกต้อง</button><button class="btn text" data-act="edit" data-id="${a.id}">แก้ไข</button></div>` : '';
+  const actions = (a) => ADMIN ? `<div class="upd" id="u_${esc(a.id)}">${esc(updText(a))}</div><div class="acts"><button class="btn ghost" data-act="ok" data-id="${esc(a.id)}">ข้อมูลถูกต้อง</button><button class="btn text" data-act="edit" data-id="${esc(a.id)}">แก้ไข</button></div>` : '';
 
   function render(total) {
     const n = ALL.length, from = n ? (page - 1) * PER + 1 : 0, to = Math.min(page * PER, n);
@@ -128,7 +133,7 @@
       b.disabled = true;
       try {
         const r = await api('staffTouch', { id: a.id, caller: c }, code());
-        a.updated = r.updated; document.querySelectorAll('#u_' + a.id).forEach((el) => { el.textContent = updText(a); });
+        a.updated = r.updated; document.querySelectorAll('[id="u_' + a.id + '"]').forEach((el) => { el.textContent = updText(a); });
         msg('บันทึกวันที่อัปเดตแล้ว', 'ok'); loadStats();
       } catch (err) { msg(err.message); }
       b.disabled = false;
