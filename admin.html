@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="ชมรมกรีฑา">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=9">
+<link rel="stylesheet" href="style.css?v=10">
 </head>
 <body data-mode="admin" data-browse="gens">
 <div class="nav"><div class="in">
@@ -41,7 +41,7 @@
       <div class="row" style="justify-content:space-between"><b id="freshLabel">ความคืบหน้ารอบนี้</b><span class="s" id="stats"></span></div>
       <div class="progress"><i id="bar" style="width:0"></i></div>
       <div class="s" id="round" style="margin-top:6px;font-size:14px"></div>
-      <div class="row" style="margin-top:10px;justify-content:space-between"><button class="btn ghost" id="addBtn" type="button">+ เพิ่มรายชื่อ</button><span class="row" style="gap:4px"><button class="btn text" id="newRound" type="button">เริ่มรอบใหม่</button><button class="btn text" id="logout" type="button">ออกจากระบบ</button></span></div>
+      <div class="row" style="margin-top:10px;justify-content:space-between"><span class="row" style="gap:8px"><button class="btn ghost" id="addBtn" type="button">+ เพิ่มรายชื่อ</button><button class="btn ghost" id="importForm" type="button">นำเข้าจาก Google Form</button></span><span class="row" style="gap:4px"><button class="btn text" id="newRound" type="button">เริ่มรอบใหม่</button><button class="btn text" id="logout" type="button">ออกจากระบบ</button></span></div>
     </div>
   <form id="searchForm" class="searchbar" role="search">
     <input id="q" type="search" placeholder="พิมพ์ชื่อ สกุล ตำแหน่ง หรือ “รุ่น 79” เพื่อค้นหา…" aria-label="ค้นหา" autocomplete="off">
@@ -80,6 +80,6 @@
   <div class="two"><div><label for="e_phone">เบอร์โทร (หลายเบอร์คั่นด้วย , )</label><input class="field" id="e_phone" type="tel"></div><div><label for="e_dist">ระยะ</label><input class="field" id="e_dist"></div></div>
   <div class="row"><button class="btn red" type="submit">บันทึก</button><button class="btn text" type="button" id="dlgCancel">ยกเลิก</button></div>
 </form></dialog>
-<script src="config.js?v=9"></script>
-<script src="app.js?v=9"></script>
+<script src="config.js?v=10"></script>
+<script src="app.js?v=10"></script>
 </body></html>
