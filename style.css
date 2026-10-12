@@ -127,3 +127,10 @@ dialog h2 { margin: 0; font-size: 20px; }
 .gchip:focus-visible { outline: 2px solid var(--red-bright); outline-offset: 2px; }
 .btn.back { display: block; margin: 0 auto 8px; padding: 4px 6px; }
 @media (max-width: 480px) { .gens { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; } .gchip { padding: 11px 4px; } .gchip b { font-size: 16px; } }
+
+/* ความคืบหน้ารายรุ่น (ผู้ดูแล) */
+.gchip.prog { gap: 4px; padding-bottom: 12px; }
+.gbar { display: block; width: 78%; height: 6px; border-radius: 6px; background: var(--soft); overflow: hidden; margin-top: 4px; }
+.gbar > i { display: block; height: 100%; border-radius: 6px; background: var(--red-bright); }
+.gchip.done .gbar > i { background: var(--good); }
+.gchip.done span { color: var(--good); font-weight: 600; }

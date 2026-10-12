@@ -11,7 +11,7 @@
 
   let ALL = [], page = 1, byId = {}, editing = null;
   // หน้าแรก: 'gens' = สารบัญรุ่น · 'all' = โชว์ทั้งหมดตอนเปิดหน้า · '' = ต้องค้นหาก่อน
-  const BROWSE = ADMIN ? '' : (document.body.dataset.browse || '');
+  const BROWSE = document.body.dataset.browse || '';
   let LISTALL = false, GENS = null;
 
   /* ---------- เรียก API (Apps Script) ---------- */
@@ -42,7 +42,7 @@
     try {
       const s = await api('staffStats', code());
       store.set('adminCode', code()); store.set('adminName', $('#caller').value.trim());
-      $('#login').hidden = true; $('#app').hidden = false; showStats(s); deepLink();
+      $('#login').hidden = true; $('#app').hidden = false; showStats(s); deepLink(); if ($('#results').hidden) startBrowse();
     } catch (e) {
       $('#login').hidden = false; $('#app').hidden = true;
       if (!silent) msg(e.message); else store.set('adminCode', '');
@@ -56,9 +56,10 @@
   }
   function showStats(s) {
     $('#stats').textContent = `${s.fresh} จาก ${s.total} คน`;
+    if (s.start && $('#round')) $('#round').textContent = `รอบนี้เริ่ม ${s.start} · รีเซ็ตอัตโนมัติ ${s.next}`;
     $('#bar').style.width = (s.total ? Math.round(s.fresh / s.total * 100) : 0) + '%';
   }
-  const loadStats = () => ADMIN && api('staffStats', code()).then(showStats).catch(() => {});
+  const loadStats = () => { if (!ADMIN) return; GENS = null; api('staffStats', code()).then(showStats).catch(() => {}); };
 
   /* ---------- เรียงผล: รุ่น → ระยะ (ลู่สั้น→ยาว, ผลัด, ลาน, ไม่ระบุไว้ท้าย) → ชื่อ ---------- */
   const FIELD_EV = ['กระโดดสูง', 'กระโดดไกล', 'เขย่ง', 'ค้ำถ่อ', 'ทุ่มน้ำหนัก', 'ขว้างจักร', 'พุ่งแหลน', 'ขว้างค้อน', 'ทศกรีฑา', 'สัตตกรีฑา'];
@@ -164,7 +165,16 @@
       b.disabled = false;
     });
     $('#addBtn').addEventListener('click', () => openForm(null));
-    $('#logout').addEventListener('click', () => { store.set('adminCode', ''); $('#code').value = ''; $('#app').hidden = true; $('#login').hidden = false; });
+    $('#newRound').addEventListener('click', async () => {
+      const c = caller(); if (!c) return;
+      if (!confirm('เริ่มรอบอัปเดตใหม่ตั้งแต่วันนี้?\nหลอดความคืบหน้าทุกรุ่นจะกลับเป็น 0 (วันที่อัปเดตล่าสุดของแต่ละคนยังอยู่ครบ)')) return;
+      try {
+        showStats(await api('staffNewRound', { caller: c }, code()));
+        GENS = null; if ($('#results').hidden) showGens();
+        msg('เริ่มรอบใหม่แล้ว', 'ok');
+      } catch (e) { msg(e.message); }
+    });
+    $('#logout').addEventListener('click', () => { store.set('adminCode', ''); $('#code').value = ''; $('#app').hidden = true; $('#login').hidden = false; GENS = null; });
     $('#loginBtn').addEventListener('click', () => login(false));
     $('#code').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(false); });
     $('#caller').value = store.get('adminName'); $('#code').value = store.get('adminCode');
@@ -209,11 +219,18 @@
     $('#results').hidden = true; box.hidden = false;
     if (!GENS) {
       box.innerHTML = '<div class="empty">กำลังโหลดสารบัญรุ่น…</div>';
-      try { GENS = await api('genIndex'); } catch (e) { box.innerHTML = ''; msg(e.message); return; }
+      try { GENS = ADMIN ? await api('staffGenIndex', code()) : await api('genIndex'); } catch (e) { box.innerHTML = ''; msg(e.message); return; }
     }
     const total = GENS.reduce((n, g) => n + g.count, 0);
-    box.innerHTML = `<div class="ghead"><b>สารบัญรุ่น</b><span>${GENS.length} รุ่น · ${total} คน · แตะรุ่นเพื่อดูรายชื่อ</span></div>
-      <div class="gens">${GENS.map((g) => `<button type="button" class="gchip" data-gen="${esc(g.gen)}"><b>รุ่น ${esc(g.gen)}</b><span>${g.count} คน</span></button>`).join('')}</div>`;
+    const done = GENS.reduce((n, g) => n + (g.fresh || 0), 0);
+    const chip = (g) => {
+      if (!ADMIN) return `<button type="button" class="gchip" data-gen="${esc(g.gen)}"><b>รุ่น ${esc(g.gen)}</b><span>${g.count} คน</span></button>`;
+      const pct = g.count ? Math.round(g.fresh / g.count * 100) : 0;
+      return `<button type="button" class="gchip prog${pct === 100 ? ' done' : ''}" data-gen="${esc(g.gen)}" title="อัปเดตรอบนี้ ${g.fresh} จาก ${g.count} คน (${pct}%)">
+        <b>รุ่น ${esc(g.gen)}</b><span>${g.fresh}/${g.count} คน</span><i class="gbar"><i style="width:${pct}%"></i></i></button>`;
+    };
+    box.innerHTML = `<div class="ghead"><b>สารบัญรุ่น</b><span>${GENS.length} รุ่น · ${ADMIN ? `อัปเดตรอบนี้ ${done}/${total} คน` : `${total} คน`} · แตะรุ่นเพื่อดูรายชื่อ</span></div>
+      <div class="gens">${GENS.map(chip).join('')}</div>`;
   }
   async function showAll() {
     msg(''); $('#results').hidden = false; if ($('#browse')) $('#browse').hidden = true;
@@ -223,12 +240,12 @@
       ALL = r.items; LISTALL = true; page = 1; render(r.total);
     } catch (e) { $('#sum').innerHTML = ''; msg(e.message); }
   }
-  const genOnly = () => { const c = criteria(); return c.gen && !c.q && !c.first && !c.last && !c.nick && !c.dist ? c.gen : ''; };
+  const genOnly = () => { const c = criteria(); return c.gen && !c.q && !c.first && !c.last && !c.nick && !c.dist && !c.fresh ? c.gen : ''; };
   function startBrowse() { if (BROWSE === 'gens') showGens(); else if (BROWSE === 'all') showAll(); }
   document.addEventListener('click', (e) => {
     const g = e.target.closest('.gchip');
     if (g) { FIELDS.forEach((k) => { $('#f_' + k).value = ''; }); $('#q').value = ''; $('#f_gen').value = g.dataset.gen; search(false); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
     if (e.target.closest('#backGens')) { $('#f_gen').value = ''; showGens(); }
   });
-  startBrowse();
+  if (!ADMIN) startBrowse();
 })();
