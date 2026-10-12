@@ -31,7 +31,7 @@
   const msg = (t, kind) => { const m = ($('#app') && $('#app').hidden && $('#loginMsg')) || $('#msg'); m.hidden = !t; m.className = 'msg ' + (kind || 'err'); m.textContent = t || ''; };
   const code = () => $('#code') ? $('#code').value : '';
   const caller = () => { const c = ($('#caller') && $('#caller').value.trim()) || ''; if (!c) msg('กรุณาใส่ชื่อของคุณก่อน'); return c; };
-  const updText = (a) => (a.updated ? 'อัปเดตล่าสุด ' + a.updated : 'ยังไม่เคยอัปเดต');
+  const updText = (a) => (a.updated ? 'อัปเดตล่าสุด ' + a.updated + (ADMIN && a.via ? ' · ' + a.via : '') : 'ยังไม่เคยอัปเดต');
 
   /* ---------- ผู้ดูแล: เข้าสู่ระบบ ---------- */
   async function login(silent) {
@@ -159,12 +159,24 @@
       b.disabled = true;
       try {
         const r = await api('staffTouch', { id: a.id, caller: c }, code());
-        a.updated = r.updated; document.querySelectorAll('[id="u_' + a.id + '"]').forEach((el) => { el.textContent = updText(a); });
+        a.updated = r.updated; a.via = 'Admin (เว็บ)'; document.querySelectorAll('[id="u_' + a.id + '"]').forEach((el) => { el.textContent = updText(a); });
         msg('บันทึกวันที่อัปเดตแล้ว', 'ok'); loadStats();
       } catch (err) { msg(err.message); }
       b.disabled = false;
     });
     $('#addBtn').addEventListener('click', () => openForm(null));
+    $('#importForm').addEventListener('click', async (e) => {
+      const c = caller(); if (!c) return;
+      const b = e.currentTarget; b.disabled = true; b.textContent = 'กำลังนำเข้า…';
+      try {
+        const r = await api('staffImportForm', { caller: c }, code());
+        const wait = r.items.filter((x) => /^รอตรวจ/.test(x.status));
+        msg(`นำเข้าจาก Google Form แล้ว: อัปเดต ${r.updated} · ข้อมูลเหมือนเดิม ${r.same} · รอตรวจ ${r.review} · เคยนำเข้าแล้ว ${r.skipped}` +
+          (wait.length ? `\nรอตรวจ (ดูแท็บ FormImport ในชีต): ` + wait.slice(0, 8).map((x) => `${x.name} รุ่น ${x.gen || '-'} – ${x.detail}`).join(' · ') + (wait.length > 8 ? ' …' : '') : '') + (r.markError ? `\n⚠️ ${r.markError}` : ''), r.review || r.markError ? 'err' : 'ok');
+        loadStats(); if (!$('#results').hidden && Object.values(criteria()).some(Boolean)) search(true); else if ($('#browse') && !$('#browse').hidden) showGens();
+      } catch (err) { msg(err.message); }
+      b.disabled = false; b.textContent = 'นำเข้าจาก Google Form';
+    });
     $('#newRound').addEventListener('click', async () => {
       const c = caller(); if (!c) return;
       if (!confirm('เริ่มรอบอัปเดตใหม่ตั้งแต่วันนี้?\nหลอดความคืบหน้าทุกรุ่นจะกลับเป็น 0 (วันที่อัปเดตล่าสุดของแต่ละคนยังอยู่ครบ)')) return;
