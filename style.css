@@ -2,7 +2,7 @@
   --red: #7a1424; --red-dark: #5a0e1a; --red-bright: #d63b52; --black: #141111;
   --bg: #f1eeee; --surface: #ffffff; --ink: #161212; --muted: #5d5353; --line: #e6dfde; --soft: #f3ecec; --tint: #f7e9ec;
   --head: #1f1b1b; --good: #1b6e3a; --bad: #b00020; --shadow: 0 1px 3px rgba(0,0,0,.06);
-  --font: 'Sarabun', 'Noto Sans Thai', system-ui, sans-serif;
+  --font: 'Itim', 'Sarabun', 'Noto Sans Thai', system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #0f0d0d; --surface: #1a1717; --ink: #f2eded; --muted: #b5abab; --line: #2e2828; --soft: #262121; --tint: #34161d;
@@ -134,3 +134,5 @@ dialog h2 { margin: 0; font-size: 20px; }
 .gbar > i { display: block; height: 100%; border-radius: 6px; background: var(--red-bright); }
 .gchip.done .gbar > i { background: var(--good); }
 .gchip.done span { color: var(--good); font-weight: 600; }
+
+.msg { white-space: pre-line; }

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ค้นหาแบบละเอียด</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#141111">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preload" href="fonts/itim-thai.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="fonts.css?v=12">
+<style>
+  :root {
+    --red: #7a1424; --red-2: #a01c31; --red-soft: #f7e9ec; --black: #141111;
+    --bg: #f4f1f1; --card: #ffffff; --ink: #191414; --muted: #6b6060; --line: #e7dfdf; --chip: #ffffff;
+    --good: #1b6e3a; --font: 'Itim', 'Sarabun', 'Noto Sans Thai', system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --red: #c24a5e; --red-2: #d9617a; --red-soft: #3a1820; --bg: #111010; --card: #1c1919; --ink: #f2eded; --muted: #ab9f9f; --line: #2f2929; --chip: #1c1919; --good: #5fcf8a; } }
+  :root[data-theme="dark"] {
+    --red: #c24a5e; --red-2: #d9617a; --red-soft: #3a1820; --bg: #111010; --card: #1c1919; --ink: #f2eded; --muted: #ab9f9f; --line: #2f2929; --chip: #1c1919; --good: #5fcf8a; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.45; }
+  button, input { font: inherit; color: inherit; }
+  main { padding: 14px 16px 110px; max-width: 560px; margin: 0 auto; }
+  .brand { display: flex; align-items: center; gap: 12px; margin: 2px 0 14px; }
+  .brand img { width: 44px; height: 44px; border-radius: 12px; background: #fff; padding: 3px; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+  .brand b { display: block; font-size: 20px; line-height: 1.2; }
+  .brand small { color: var(--muted); font-size: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-bottom: 12px; }
+  label { display: block; font-weight: 600; font-size: 15px; margin: 0 0 6px; }
+  .hint { font-weight: 400; color: var(--muted); font-size: 13px; margin-left: 6px; }
+  .field { margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  input[type=text] { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); outline: none; font-size: 17px; }
+  input[type=text]:focus { border-color: var(--red); background: var(--card); box-shadow: 0 0 0 3px var(--red-soft); }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grp { font-size: 13px; color: var(--muted); margin: 10px 0 6px; }
+  .grp:first-of-type { margin-top: 2px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1px solid var(--line); background: var(--chip); border-radius: 999px; padding: 7px 14px; font-size: 15px; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: #fff; font-weight: 600; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: var(--card); border-top: 1px solid var(--line); display: flex; gap: 10px; }
+  .bar > div { max-width: 560px; margin: 0 auto; display: flex; gap: 10px; width: 100%; }
+  .btn { border: 0; border-radius: 14px; padding: 13px 16px; font-weight: 700; font-size: 17px; cursor: pointer; }
+  .btn.main { flex: 1; background: var(--red); color: #fff; }
+  .btn.ghost { background: var(--bg); color: var(--ink); border: 1px solid var(--line); }
+  .btn:disabled { opacity: .55; }
+  .err { color: #b00020; font-size: 15px; margin: 4px 2px 10px; min-height: 0; }
+  /* ผลลัพธ์ */
+  .top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .back { border: 0; background: none; color: var(--red); font-weight: 700; padding: 6px 0; cursor: pointer; }
+  .sum { font-size: 15px; color: var(--muted); }
+  .sum b { color: var(--ink); font-size: 18px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 12px; }
+  .tag { background: var(--red-soft); color: var(--red); border-radius: 999px; padding: 3px 10px; font-size: 13px; font-weight: 600; }
+  .p { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; margin-bottom: 10px; }
+  .p .h { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+  .p .nm { font-weight: 700; font-size: 18px; line-height: 1.3; }
+  .p .rk { color: var(--muted); font-weight: 600; font-size: 14px; }
+  .p .nk { color: var(--muted); font-size: 14px; }
+  .gen { flex: none; background: var(--red); color: #fff; font-weight: 700; font-size: 13px; padding: 2px 10px; border-radius: 999px; }
+  .p .pos { margin-top: 6px; font-size: 16px; }
+  .p .dist { display: inline-block; margin-top: 6px; font-size: 13px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 1px 10px; }
+  .p .upd { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .call { display: inline-flex; align-items: center; gap: 6px; background: var(--red); color: #fff; text-decoration: none; border-radius: 999px; padding: 8px 14px; font-weight: 700; font-size: 15px; }
+  .send { border: 1px solid var(--red); color: var(--red); background: none; border-radius: 999px; padding: 7px 14px; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .send.done { border-color: var(--good); color: var(--good); }
+  .dead { font-size: 12px; background: var(--bg); border-radius: 999px; padding: 1px 8px; margin-left: 6px; color: var(--muted); vertical-align: middle; }
+  .empty { text-align: center; color: var(--muted); padding: 30px 10px; }
+  .more { width: 100%; }
+  .toast { position: fixed; left: 50%; bottom: 92px; transform: translateX(-50%) translateY(20px); background: var(--black); color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 15px; opacity: 0; transition: .2s; pointer-events: none; white-space: nowrap; }
+  .toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <!-- ฟอร์ม -->
+  <section id="form">
+    <div class="brand"><img src="logo.png" alt=""><div><b>ค้นหาแบบละเอียด</b><small>ทำเนียบชมรมกรีฑา · กรอกได้หลายช่องพร้อมกัน</small></div></div>
+    <div class="card">
+      <div class="field"><label for="gen">รุ่น <span class="hint">หลายรุ่นคั่นด้วย / เช่น 78/79</span></label><input type="text" id="gen" inputmode="numeric" placeholder="เช่น 79" autocomplete="off"></div>
+      <div class="row2">
+        <div class="field"><label for="first">ชื่อจริง</label><input type="text" id="first" placeholder="เช่น ธนวัฒน์" autocomplete="off"></div>
+        <div class="field"><label for="last">นามสกุล</label><input type="text" id="last" placeholder="เช่น สงวนสัตย์" autocomplete="off"></div>
+      </div>
+      <div class="field"><label for="nick">ชื่อเล่น / ฉายา</label><input type="text" id="nick" placeholder="เช่น หาว/ดอนนี่" autocomplete="off"></div>
+    </div>
+    <div class="card">
+      <label>ระยะ <span class="hint">เลือกได้หลายระยะ</span></label>
+      <div class="grp">ลู่</div>
+      <div class="chips" id="track"></div>
+      <div class="grp">ลาน</div>
+      <div class="chips" id="field"></div>
+    </div>
+    <div class="err" id="err" hidden></div>
+  </section>
+
+  <!-- ผลลัพธ์ -->
+  <section id="res" hidden>
+    <div class="top"><button class="back" id="back" type="button">← แก้ตัวกรอง</button></div>
+    <div class="sum" id="sum"></div>
+    <div class="tags" id="tags"></div>
+    <div id="list"></div>
+    <button class="btn ghost more" id="more" type="button" hidden>ดูเพิ่ม</button>
+  </section>
+</main>
+
+<div class="bar" id="barForm"><div><button class="btn ghost" id="clear" type="button">ล้าง</button><button class="btn main" id="go" type="button">ค้นหา</button></div></div>
+<div class="toast" id="toast"></div>
+
+<!-- LIFF SDK: ใช้งานจริงเมื่อเปิดจากใน LINE (ตั้ง window.LIFF_ID ใน config.js) -->
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script src="config.js?v=12"></script>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const TRACK = ['100', '200', '400', '800', '1500', '5000', '10000', 'ข้ามรั้ว', 'ผลัด'];
+  const FIELD = ['กระโดดสูง', 'กระโดดไกล', 'เขย่ง', 'ค้ำถ่อ', 'ทุ่มน้ำหนัก', 'ขว้างจักร', 'พุ่งแหลน', 'ขว้างค้อน'];
+  const label = (d) => (/^\d+$/.test(d) ? Number(d).toLocaleString('en-US') : d);
+  const chipHtml = (d) => `<button type="button" class="chip" aria-pressed="false" data-d="${esc(d)}">${esc(label(d))}</button>`;
+  $('#track').innerHTML = TRACK.map(chipHtml).join('');
+  $('#field').innerHTML = FIELD.map(chipHtml).join('');
+  document.addEventListener('click', (e) => {
+    const c = e.target.closest('.chip'); if (!c) return;
+    c.setAttribute('aria-pressed', String(c.getAttribute('aria-pressed') !== 'true'));
+  });
+
+  /* ---------- LIFF ----------
+     ของจริง: มี LIFF SDK + LIFF_ID → liff.init แล้วปุ่ม "ส่งเข้าแชท" ใช้ liff.sendMessages (เฉพาะเปิดในแอป LINE)
+     ไม่มี LIFF_ID (เปิดในเบราว์เซอร์ธรรมดา) → ใช้ค้นหาได้ตามปกติ แต่ไม่มีปุ่มส่งเข้าแชท
+     ในพรีวิว (อยู่ใน iframe) → จำลองการส่งโดย postMessage ไปหน้าแชทจำลอง */
+  const HAS_LIFF = typeof window.liff !== 'undefined' && !!window.LIFF_ID && !/^PASTE/.test(window.LIFF_ID);
+  const DEMO = !HAS_LIFF && window.parent !== window;
+  let liffOk = false;
+  const ready = HAS_LIFF
+    ? window.liff.init({ liffId: window.LIFF_ID }).then(() => { liffOk = true; })
+    : Promise.resolve();
+  const canSend = () => (liffOk ? window.liff.isInClient() : DEMO);
+
+  async function api(fn, ...args) {
+    const res = await fetch(window.API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn, args }) });
+    const j = await res.json();
+    if (!j.ok) throw new Error(j.error || 'เกิดข้อผิดพลาด');
+    return j.data;
+  }
+
+  /* ---------- เรียงผล: รุ่น → ระยะ (ลู่สั้น→ยาว, ผลัด, ลาน) → ชื่อ ---------- */
+  function distKey(d) {
+    const s = String(d || '').trim();
+    if (!s || s === '-') return [9, 0];
+    if (/ผลัด|\d\s*[x×]\s*\d/.test(s)) return [2, 0];
+    const n = s.match(/\d[\d,]*/);
+    if (n) return [1, Number(n[0].replace(/,/g, '')) + (/ข้ามรั้ว/.test(s) ? 0.5 : 0)];
+    const f = FIELD.findIndex((x) => s.includes(x));
+    return f >= 0 ? [3, f] : [4, 0];
+  }
+  const byOrder = (a, b) => (Number(a.gen) - Number(b.gen)) || (() => { const x = distKey(a.dist), y = distKey(b.dist); return x[0] - y[0] || x[1] - y[1]; })() || String(a.name).localeCompare(String(b.name), 'th');
+
+  /* ---------- ค้นหา ---------- */
+  let ALL = [], shown = 0;
+  const PER = 20;
+  function criteria() {
+    const c = { gen: $('#gen').value.trim(), first: $('#first').value.trim(), last: $('#last').value.trim(), nick: $('#nick').value.trim() };
+    const ds = [...document.querySelectorAll('.chip[aria-pressed="true"]')].map((b) => b.dataset.d);
+    c.dist = ds.join('/');
+    return c;
+  }
+  function showErr(t) { const e = $('#err'); e.hidden = !t; e.textContent = t || ''; }
+  async function search() {
+    const c = criteria();
+    if (!Object.values(c).some(Boolean)) return showErr('กรอกหรือเลือกอย่างน้อย 1 ช่อง');
+    showErr('');
+    const go = $('#go'); go.disabled = true; go.textContent = 'กำลังค้นหา…';
+    try {
+      await ready.catch(() => {});
+      const r = await api('memberSearch', c);
+      ALL = r.items.slice().sort(byOrder); shown = 0;
+      $('#form').hidden = true; $('#barForm').hidden = true; $('#res').hidden = false;
+      const tags = [];
+      if (c.gen) tags.push('รุ่น ' + c.gen.split('/').join(', '));
+      if (c.first) tags.push('ชื่อ ' + c.first); if (c.last) tags.push('สกุล ' + c.last); if (c.nick) tags.push('ชื่อเล่น ' + c.nick);
+      if (c.dist) tags.push('ระยะ ' + c.dist.split('/').map(label).join(', '));
+      $('#tags').innerHTML = tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('');
+      $('#sum').innerHTML = ALL.length ? `พบ <b>${r.total}</b> คน` : '';
+      $('#list').innerHTML = ALL.length ? '' : '<div class="empty">ไม่พบข้อมูล<br>ลองลดตัวกรองลง หรือเปลี่ยนคำค้น</div>';
+      more(); window.scrollTo(0, 0);
+    } catch (e) { showErr(e.message); }
+    go.disabled = false; go.textContent = 'ค้นหา';
+  }
+  const PHONE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1z"/></svg>';
+  function card(a, i) {
+    const dead = a.tag === 'เสียชีวิต';
+    const calls = dead ? '' : (a.phones || []).slice(0, 2).map((p) => `<a class="call" href="tel:${esc(p.tel)}">${PHONE}${esc(p.label)}</a>`).join('');
+    return `<div class="p"><div class="h"><div><div class="nm"><span class="rk">${esc(a.rank)}</span> ${esc(a.name)}${a.tag ? `<span class="dead">${esc(a.tag)}</span>` : ''}</div>
+      ${a.nick ? `<div class="nk">“${esc(a.nick)}”</div>` : ''}</div><span class="gen">รุ่น ${esc(a.gen)}</span></div>
+      <div class="pos">${esc(a.pos) || '-'}</div>${a.dist ? `<span class="dist">ระยะ ${esc(a.dist)}</span>` : ''}
+      <div class="upd">${a.updated ? 'อัปเดตล่าสุด ' + esc(a.updated) : 'ยังไม่เคยอัปเดต'}</div>
+      <div class="acts">${calls}${canSend() ? `<button class="send" type="button" data-i="${i}">ส่งเข้าแชท</button>` : ''}</div></div>`;
+  }
+  function more() {
+    const next = ALL.slice(shown, shown + PER);
+    $('#list').insertAdjacentHTML('beforeend', next.map((a, k) => card(a, shown + k)).join(''));
+    shown += next.length;
+    $('#more').hidden = shown >= ALL.length;
+  }
+
+  /* ---------- ส่งการ์ดเข้าแชท (หน้าตาเดียวกับการ์ดของบอท) ---------- */
+  const RED = '#7A1424', BLACK = '#141414';
+  function bubble(a) {
+    const ph = a.tag === 'เสียชีวิต' ? [] : (a.phones || []).slice(0, 2);
+    const b = { type: 'bubble', size: 'giga',
+      header: { type: 'box', layout: 'vertical', backgroundColor: BLACK, paddingAll: '16px', contents: [
+        { type: 'text', text: `${a.rank ? a.rank + ' ' : ''}${a.name}`, weight: 'bold', size: 'xl', color: '#FFFFFF', wrap: true },
+        { type: 'text', text: `${a.nick ? '"' + a.nick + '" · ' : ''}นรต.รุ่น ${a.gen}`, size: 'md', color: '#E8A3AE', wrap: true }] },
+      body: { type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px', contents: [
+        { type: 'text', text: a.pos || '-', size: 'md', wrap: true },
+        ...(a.dist ? [{ type: 'text', text: 'ระยะ: ' + a.dist, size: 'md', color: RED }] : []),
+        ...(a.updated ? [{ type: 'text', text: 'อัปเดตล่าสุด ' + a.updated, size: 'sm', color: '#888888', margin: 'lg' }] : [])] } };
+    if (ph.length) b.footer = { type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '12px', contents: ph.map((p, i) => ({ type: 'button', style: i ? 'secondary' : 'primary', color: i ? undefined : RED, height: 'md', action: { type: 'uri', label: ('โทร ' + p.label).slice(0, 40), uri: 'tel:' + p.tel } })) };
+    return { type: 'flex', altText: `${a.rank} ${a.name} รุ่น ${a.gen}`, contents: b };
+  }
+  $('#list').addEventListener('click', async (e) => {
+    const b = e.target.closest('.send'); if (!b) return;
+    const a = ALL[Number(b.dataset.i)];
+    try {
+      if (liffOk) await window.liff.sendMessages([bubble(a)]);
+      else window.parent.postMessage({ type: 'liff-send', person: a }, '*');
+      b.textContent = 'ส่งแล้ว ✓'; b.classList.add('done'); toast('ส่งการ์ดเข้าแชทแล้ว');
+    } catch (err) { toast('ส่งไม่สำเร็จ: ' + err.message); }
+  });
+  function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 1800); }
+
+  $('#go').addEventListener('click', search);
+  document.querySelectorAll('input').forEach((i) => i.addEventListener('keydown', (e) => { if (e.key === 'Enter') search(); }));
+  $('#more').addEventListener('click', more);
+  $('#back').addEventListener('click', () => { $('#res').hidden = true; $('#form').hidden = false; $('#barForm').hidden = false; window.scrollTo(0, 0); });
+  $('#clear').addEventListener('click', () => {
+    document.querySelectorAll('input[type=text]').forEach((i) => { i.value = ''; });
+    document.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', 'false')); showErr('');
+  });
+  ready.catch((e) => showErr('เปิด LIFF ไม่สำเร็จ (ยังค้นหาได้ตามปกติ): ' + e.message));
+  if (!window.API_URL || /^PASTE/.test(window.API_URL)) showErr('ยังไม่ได้ตั้งค่า API_URL ใน config.js');
+})();
+</script>
+</body>
+</html>
