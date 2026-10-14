@@ -118,7 +118,7 @@
 (() => {
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const TRACK = ['100', '400', '800', '1500', '5000', '10000'];
+  const TRACK = ['100', '400', '800', '1500', '5000'];
   const FIELD = ['กระโดดสูง', 'กระโดดไกล', 'ทุ่มน้ำหนัก', 'ขว้างจักร', 'พุ่งแหลน'];
   const label = (d) => (/^\d+$/.test(d) ? Number(d).toLocaleString('en-US') + 'M' : d);
   const chipHtml = (d) => `<button type="button" class="chip" aria-pressed="false" data-d="${esc(d)}">${esc(label(d))}</button>`;
