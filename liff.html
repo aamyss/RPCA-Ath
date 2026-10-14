@@ -9,6 +9,11 @@
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="preload" href="fonts/itim-thai.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="fonts.css?v=12">
+<script>
+  // เปิดมาเพื่อแก้ไขข้อมูล (ปุ่ม "อัปเดตข้อมูล" ในการ์ด) → ซ่อนหน้าค้นหาตั้งแต่ก่อนวาดหน้า แสดงหน้ากำลังโหลดแทน
+  // LINE ส่งมาเป็น ?liff.state=%3Fedit%3D... ก่อน แล้ว liff.init จะพาไป ?edit=... อีกที
+  if (/(^|[?&])edit=|liff\.state=[^&]*edit/.test(location.search)) document.documentElement.classList.add('boot-edit');
+</script>
 <style>
   :root {
     --red: #7a1424; --red-2: #a01c31; --red-soft: #f7e9ec; --black: #141111;
@@ -100,11 +105,17 @@
   .okbox h2 { margin: 0 0 4px; font-size: 24px; }
   .okbox p { margin: 0 0 16px; color: var(--muted); }
   .stack { display: grid; gap: 10px; margin-top: 8px; }
+  #boot { display: none; text-align: center; padding: 90px 16px; color: var(--muted); }
+  .boot-edit #boot { display: block; }
+  .boot-edit #form, .boot-edit #barForm { display: none !important; }
+  .spin { width: 42px; height: 42px; border-radius: 50%; border: 4px solid var(--line); border-top-color: var(--red); margin: 0 auto 14px; animation: sp .8s linear infinite; }
+  @keyframes sp { to { transform: rotate(360deg); } }
   [hidden] { display: none !important; }
 </style>
 </head>
 <body>
 <main>
+  <div id="boot"><div class="spin"></div>กำลังเปิดข้อมูล…</div>
   <!-- ฟอร์ม -->
   <section id="form">
     <div class="brand"><img src="logo.png" alt=""><div><b>ค้นหาแบบละเอียด</b><small>ทำเนียบชมรมกรีฑา · กรอกได้หลายช่องพร้อมกัน</small></div></div>
@@ -320,13 +331,14 @@
     throw new Error('กรุณาเปิดหน้านี้จากในแอป LINE เพื่อแก้ไขข้อมูล');
   }
   function show(id) {
+    document.documentElement.classList.remove('boot-edit');
     ['form', 'res', 'edit', 'done'].forEach((s) => { $('#' + s).hidden = s !== id; });
     $('#barForm').hidden = id !== 'form'; $('#barEdit').hidden = id !== 'edit'; window.scrollTo(0, 0);
     document.title = id === 'edit' || id === 'done' ? 'แก้ไขข้อมูล' : 'ค้นหาแบบละเอียด';
   }
   async function openEdit(id, from) {
     let a;
-    try { a = await api('memberGet', { id, idToken: await idToken() }); } catch (e) { return toast(e.message); }
+    try { a = await api('memberGet', { id }); } catch (e) { show(from === 'deep' ? 'form' : 'res'); return toast(e.message); }
     const ph = splitPhones(a.phone);
     ED = { a, from: from || 'res', orig: { rank: a.rank || '', pos: a.pos || '', p1: ph[0] || '', p2: ph[1] || '', nick: a.nick || '', dist: distTokens(a.dist) } };
     $('#eWho').innerHTML = `<b>${esc(a.rank)} ${esc(a.name)}</b><span>${a.nick ? '“' + esc(a.nick) + '” · ' : ''}นรต.รุ่น ${esc(a.gen)}</span><small>${a.updated ? 'อัปเดตล่าสุด ' + esc(a.updated) : 'ยังไม่เคยอัปเดต'}</small>`;
@@ -413,7 +425,11 @@
     $('#list').innerHTML = ''; shown = 0; more(); show('res');
   });
   // ลิงก์ https://liff.line.me/<LIFF_ID>?edit=<id> → LINE ส่งต่อมาเป็น liff.html?edit=<id> หลัง liff.init
-  ready.catch(() => {}).then(() => { const deep = new URLSearchParams(location.search).get('edit'); if (deep) openEdit(deep, 'deep'); });
+  const deep = new URLSearchParams(location.search).get('edit');
+  if (deep) openEdit(deep, 'deep'); // ดึงข้อมูลพร้อมกับ liff.init ไม่ต้องรอกัน
+  else if (document.documentElement.classList.contains('boot-edit')) ready.catch(() => {}).then(() => { // ยังเป็น liff.state: รอ LINE พาไป ?edit=
+    setTimeout(() => { if (document.documentElement.classList.contains('boot-edit')) show('form'); }, 6000); // กันค้างหน้าโหลด
+  });
 
   ready.catch((e) => showErr('เปิด LIFF ไม่สำเร็จ (ยังค้นหาได้ตามปกติ): ' + e.message));
   if (!window.API_URL || /^PASTE/.test(window.API_URL)) showErr('ยังไม่ได้ตั้งค่า API_URL ใน config.js');
