@@ -140,7 +140,7 @@
     <div class="top"><button class="back" id="eBack" type="button">← กลับ</button></div>
     <div class="who" id="eWho"></div>
     <div class="card">
-      <div class="field ef" data-k="rank"><label for="eRank">ยศ</label><select id="eRank"></select><div class="was"></div></div>
+      <div class="field ef" data-k="rank"><label for="eRank">ยศ <span class="hint">พิมพ์หรือเลือกจากรายการ</span></label><input type="text" id="eRank" list="rankList" placeholder="เช่น พ.ต.ท." autocomplete="off"><datalist id="rankList"></datalist><div class="was"></div></div>
       <div class="field ef" data-k="pos"><label for="ePos">ตำแหน่งปัจจุบัน</label><textarea id="ePos" rows="2" placeholder="เช่น สว.(สอบสวน) สภ.เมืองนนทบุรี"></textarea><div class="was"></div></div>
       <div class="field ef" data-k="phone"><label for="eP1">เบอร์โทร <span class="hint">ใส่ได้ 2 เบอร์</span></label>
         <div class="row2"><input type="tel" id="eP1" inputmode="tel" placeholder="เบอร์หลัก" autocomplete="off"><input type="tel" id="eP2" inputmode="tel" placeholder="เบอร์สำรอง" autocomplete="off"></div><div class="was"></div></div>
@@ -307,6 +307,17 @@
      เปิดจากปุ่ม "แก้ไขข้อมูล" ในผลค้นหา หรือเปิดตรงด้วย liff.html?edit=<id> (ปุ่มในการ์ดของบอท)
      ส่ง ID token ของ LINE ไปด้วยทุกครั้ง → เซิร์ฟเวอร์ตรวจกับ LINE ว่าเป็นผู้ใช้จริงก่อนบันทึก */
   const RANKS = ['ร.ต.ต.', 'ร.ต.ท.', 'ร.ต.อ.', 'พ.ต.ต.', 'พ.ต.ท.', 'พ.ต.อ.', 'พ.ต.อ.(พิเศษ)', 'พล.ต.ต.', 'พล.ต.ท.', 'พล.ต.อ.'];
+  // ยศ: พิมพ์เองได้ แต่ปรับรูปแบบที่พบบ่อยให้เป็นแบบเดียวกัน เช่น พตท / พ.ต.ท / พันตำรวจโท → พ.ต.ท.
+  const RANK_FULL = { 'ร้อยตำรวจตรี': 'ร.ต.ต.', 'ร้อยตำรวจโท': 'ร.ต.ท.', 'ร้อยตำรวจเอก': 'ร.ต.อ.', 'พันตำรวจตรี': 'พ.ต.ต.', 'พันตำรวจโท': 'พ.ต.ท.', 'พันตำรวจเอก': 'พ.ต.อ.', 'พลตำรวจตรี': 'พล.ต.ต.', 'พลตำรวจโท': 'พล.ต.ท.', 'พลตำรวจเอก': 'พล.ต.อ.',
+    'รตต': 'ร.ต.ต.', 'รตท': 'ร.ต.ท.', 'รตอ': 'ร.ต.อ.', 'พตต': 'พ.ต.ต.', 'พตท': 'พ.ต.ท.', 'พตอ': 'พ.ต.อ.', 'พลตต': 'พล.ต.ต.', 'พลตท': 'พล.ต.ท.', 'พลตอ': 'พล.ต.อ.', 'ดาบตำรวจ': 'ด.ต.', 'ดต': 'ด.ต.' };
+  function normRank(s) {
+    s = String(s || '').trim().replace(/\s+/g, ' ');
+    const pre = /^ว่าที่\s*/.test(s) ? 'ว่าที่ ' : '';
+    s = s.replace(/^ว่าที่\s*/, '');
+    const m = s.match(/^(.*?)\s*(\(.*\)|พิเศษ)?$/);
+    const base = m[1].replace(/[.\s]/g, ''), suf = m[2] ? '(' + m[2].replace(/[()]/g, '').trim() + ')' : '';
+    return RANK_FULL[base] ? pre + RANK_FULL[base] + suf : pre + s;
+  }
   const KEYS = { rank: 'ยศ', pos: 'ตำแหน่ง', phone: 'เบอร์โทร', nick: 'ชื่อเล่น/ฉายา', dist: 'ระยะ' };
   let ED = null; // { a, orig: {...}, from: 'res' | 'deep' }
   const splitPhones = (s) => String(s || '').split(/[\/,;\n]|\s{2,}/).map((x) => x.trim()).filter((x) => x.replace(/\D/g, '').length >= 8);
@@ -330,8 +341,7 @@
     const ph = splitPhones(a.phone);
     ED = { a, from: from || 'res', orig: { rank: a.rank || '', pos: a.pos || '', p1: ph[0] || '', p2: ph[1] || '', nick: a.nick || '', dist: distTokens(a.dist) } };
     $('#eWho').innerHTML = `<b>${esc(a.rank)} ${esc(a.name)}</b><span>${a.nick ? '“' + esc(a.nick) + '” · ' : ''}นรต.รุ่น ${esc(a.gen)}</span><small>${a.updated ? 'อัปเดตล่าสุด ' + esc(a.updated) : 'ยังไม่เคยอัปเดต'}</small>`;
-    const rk = RANKS.includes(ED.orig.rank) || !ED.orig.rank ? RANKS : [ED.orig.rank].concat(RANKS);
-    $('#eRank').innerHTML = (ED.orig.rank ? '' : '<option value="">— เลือกยศ —</option>') + rk.map((r) => `<option${r === ED.orig.rank ? ' selected' : ''}>${esc(r)}</option>`).join('');
+    $('#rankList').innerHTML = RANKS.map((r) => `<option value="${esc(r)}">`).join(''); $('#eRank').value = ED.orig.rank;
     $('#ePos').value = ED.orig.pos; $('#eP1').value = ED.orig.p1; $('#eP2').value = ED.orig.p2; $('#eNick').value = ED.orig.nick;
     const known = TRACK.concat(FIELD), other = ED.orig.dist.filter((d) => !known.includes(d));
     const eChip = (d) => `<button type="button" class="chip" aria-pressed="${ED.orig.dist.includes(d)}" data-d="${esc(d)}">${esc(label(d))}</button>`;
@@ -340,7 +350,7 @@
     $('#eErr').hidden = true; show('edit'); refresh();
   }
   function current() {
-    return { rank: $('#eRank').value, pos: $('#ePos').value.trim(), p1: $('#eP1').value.trim(), p2: $('#eP2').value.trim(), nick: $('#eNick').value.trim(),
+    return { rank: normRank($('#eRank').value), pos: $('#ePos').value.trim(), p1: $('#eP1').value.trim(), p2: $('#eP2').value.trim(), nick: $('#eNick').value.trim(),
       dist: [...document.querySelectorAll('#edit .chip[aria-pressed="true"]')].map((b) => b.dataset.d) };
   }
   function changes() {
@@ -366,6 +376,7 @@
   }
   $('#edit').addEventListener('input', refresh);
   $('#edit').addEventListener('change', refresh);
+  $('#eRank').addEventListener('blur', () => { $('#eRank').value = normRank($('#eRank').value); refresh(); });
   $('#edit').addEventListener('click', (e) => { if (e.target.closest('.chip')) setTimeout(refresh); });
   function closeEdit() { ED && ED.from === 'deep' ? show('form') : show('res'); }
   $('#eBack').addEventListener('click', closeEdit);
@@ -375,6 +386,7 @@
     const ch = changes(), c = current(), err = $('#eErr');
     const bad = [c.p1, c.p2].filter(Boolean).find((p) => p.replace(/\D/g, '').length < 9 || p.replace(/\D/g, '').length > 10);
     if (bad) { err.hidden = false; err.textContent = 'เบอร์โทรไม่ถูกต้อง: ' + bad + ' (ต้องมี 9–10 หลัก)'; return; }
+    if (!c.rank) { err.hidden = false; err.textContent = 'กรุณากรอกยศ'; return; }
     if (!c.pos) { err.hidden = false; err.textContent = 'กรุณากรอกตำแหน่งปัจจุบัน'; return; }
     err.hidden = true;
     if (!ch.length) return save([]);
